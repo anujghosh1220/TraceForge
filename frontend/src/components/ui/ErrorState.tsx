@@ -1,5 +1,5 @@
-import * as React from "react";
 import { AlertCircle } from "lucide-react";
+import { Button } from "./Button";
 
 export function ErrorState({ title, message, onRetry }: { title: string; message?: string; onRetry?: () => void }) {
   return (

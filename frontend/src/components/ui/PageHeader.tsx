@@ -1,12 +1,9 @@
-import * as React from "react";
-import { cn } from "@/lib/cn";
 
-type Breadcrumb = { label: string; onClick?: () => void };
 
 interface PageHeaderProps {
   title: string;
   description?: string;
-  breadcrumbs?: Breadcrumb[];
+  breadcrumbs?: { label: string; onClick?: () => void }[];
 }
 
 export function PageHeader({ title, description, breadcrumbs }: PageHeaderProps) {
@@ -15,8 +12,8 @@ export function PageHeader({ title, description, breadcrumbs }: PageHeaderProps)
       {breadcrumbs && breadcrumbs.length > 0 && (
         <p className="flex items-center gap-1 text-xs text-ink-muted mb-3">
           {breadcrumbs.map((b, i) => (
-            <React.Fragment key={b.label}>
-              {i > 0 && <span>/</span>}
+            <span key={b.label}>
+              {i > 0 && <span className="mx-1">/</span>}
               {b.onClick ? (
                 <button onClick={b.onClick} className="text-accent-violet underline underline-offset-4 hover:text-violet-400">
                   {b.label}
@@ -24,7 +21,7 @@ export function PageHeader({ title, description, breadcrumbs }: PageHeaderProps)
               ) : (
                 <span className="text-ink-dim">{b.label}</span>
               )}
-            </React.Fragment>
+            </span>
           ))}
         </p>
       )}

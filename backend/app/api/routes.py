@@ -1,16 +1,35 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from app.db.session import get_db
-from app.models.entities import Project, Dataset, TestCase, EvalRun, EvalResult, Trace, Span, Comparison
+from app.models.entities import (
+    Comparison,
+    Dataset,
+    EvalResult,
+    EvalRun,
+    Project,
+    Span,
+    TestCase,
+    Trace,
+)
 from app.schemas.all import (
-    ProjectCreate, ProjectUpdate, ProjectOut,
-    DatasetCreate, DatasetUpdate, DatasetOut,
-    TestCaseIn, TestCaseOut,
-    RunCreate, RunOut, ResultOut,
-    TraceOut, SpanOut, ComparisonCreate, ComparisonOut,
+    ComparisonCreate,
+    ComparisonOut,
+    DatasetCreate,
+    DatasetOut,
+    DatasetUpdate,
+    ProjectCreate,
+    ProjectOut,
+    ProjectUpdate,
+    ResultOut,
+    RunCreate,
+    RunOut,
+    SpanOut,
+    TestCaseIn,
+    TestCaseOut,
+    TraceOut,
 )
 from app.services.runner import run_evaluation
-from app.core.config import settings
 
 router = APIRouter(prefix="/api")
 

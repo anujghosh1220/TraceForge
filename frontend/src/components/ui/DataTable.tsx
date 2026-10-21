@@ -21,7 +21,7 @@ interface DataTableProps<T> {
   searchable?: boolean;
   rowActions?: {
     label: string;
-    variant?: "default" | "violet" | "red" | "ghost";
+    variant?: "default" | "violet" | "red" | "ghost" | "green";
     onClick: (row: T) => void;
   }[];
   "aria-label"?: string;
@@ -41,7 +41,7 @@ export function DataTable<T>({
   const [sort, setSort] = React.useState<{ key: string; dir: SortDirection } | null>(null);
   const [page, setPage] = React.useState(1);
 
-  const searchableCols = columns.filter((c) => searchable);
+  const searchableCols = columns.filter(() => searchable);
   const filtered = React.useMemo(() => {
     if (!search) return data.slice();
     const q = search.toLowerCase();
@@ -75,9 +75,9 @@ export function DataTable<T>({
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-border-base bg-surface-base p-5">
-        <div className="grid grid-cols-2 gap-3">
-          {[0, 1, 2, 3, 4].map((i) => (
+      <div className="rounded-lg border border-border-base bg-surface-base overflow-hidden">
+        <div className="p-4 space-y-3">
+          {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-4 bg-surface-hover rounded w-full animate-pulse" />
           ))}
         </div>

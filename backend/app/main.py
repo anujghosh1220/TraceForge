@@ -3,13 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
 from app.core.config import cors_list, settings
-from app.db.session import Base, engine
-from app.models.entities import *
+from app.db.session import Base, engine, SessionLocal
+from app.models.entities import Project, Dataset, TestCase
 
 Base.metadata.create_all(bind=engine)
-
-# seed
-from app.db.session import SessionLocal
 
 
 def seed():

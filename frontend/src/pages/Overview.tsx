@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useResource } from "@/lib/hooks";
-import { listRuns, projectMetrics } from "@/lib/api";
-import { formatDuration, formatPercent, shortId, statusColor } from "@/lib/utils";
+import { listRuns, listDatasets, projectMetrics } from "@/lib/api";
+import { formatDuration, formatPercent, shortId } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { MetricCard, PassRateCard } from "@/components/ui/MetricCard";
-import { Sparkline } from "@/components/ui/Sparkline";
-import { type EvalRun } from "@/types";
+import { type EvalRun, type Dataset } from "@/types";
 
 interface OverviewProps {
   projectId: string | null;
@@ -15,12 +15,16 @@ interface OverviewProps {
 }
 
 export function Overview({ projectId, onViewRun }: OverviewProps) {
-  const { data: runs, loading, error } = useResource<EvalRun[]>(
+  const { data: runs, loading: runsLoading, error } = useResource<EvalRun[]>(
     (signal) => (projectId ? listRuns(projectId, signal) : Promise.resolve([])),
     [projectId],
   );
-  const { data: metrics } = useResource<{ runs: number; completed: number }>(
+  const { data: metrics, loading: metricsLoading } = useResource<{ runs: number; completed: number }>(
     (signal) => (projectId ? projectMetrics(projectId, signal) : Promise.resolve({ runs: 0, completed: 0 })),
+    [projectId],
+  );
+  const { data: datasets, loading: datasetsLoading } = useResource<Dataset[]>(
+    (signal) => (projectId ? listDatasets(projectId, signal) : Promise.resolve([])),
     [projectId],
   );
 
@@ -31,6 +35,18 @@ export function Overview({ projectId, onViewRun }: OverviewProps) {
   const passRates = completedRuns.slice(0, 10).map((r) => r.metrics?.pass_rate ?? 0).filter((v) => v != null);
 
   const recent = (runs || []).slice(0, 6);
+
+  if (runsLoading || metricsLoading || datasetsLoading) {
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map((i) => (
+            <Card key={i}><CardContent><Skeleton className="h-8 w-24" /></CardContent></Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!projectId) {
     return (
@@ -44,7 +60,7 @@ export function Overview({ projectId, onViewRun }: OverviewProps) {
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard title="Evaluation runs" value={metrics?.runs ?? 0} subtitle={metrics ? `${metrics.completed} completed` : "loading…"} />
-        <MetricCard title="Datasets" value="—" subtitle="per project" />
+        <MetricCard title="Datasets" value={datasets?.length ?? 0} subtitle="in project" />
         <PassRateCard rate={latestPassRate} />
         <MetricCard title="Failed runs" value={failedRuns} subtitle="runs with failures" />
       </div>
@@ -97,7 +113,6 @@ export function Overview({ projectId, onViewRun }: OverviewProps) {
                     </tr>
                   )}
                   {recent.map((r) => {
-                    const st = statusColor(r.status);
                     const ms = r.started_at && r.completed_at ? new Date(r.completed_at).getTime() - new Date(r.started_at).getTime() : 0;
                     return (
                       <tr key={r.id} onClick={() => onViewRun(r.id)} className="cursor-pointer hover:bg-surface-hover/50">

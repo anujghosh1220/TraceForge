@@ -1,9 +1,11 @@
-import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type SkeletonVariant = "text" | "circle" | "chip" | "bar";
+interface SkeletonProps {
+  className?: string;
+  variant?: "text" | "circle" | "chip" | "bar";
+}
 
-export function Skeleton({ className, variant = "text" }: { className?: string; variant?: SkeletonVariant }) {
+export function Skeleton({ className, variant = "text" }: SkeletonProps) {
   const base = "rounded-md bg-surface-hover overflow-hidden";
   const variants = {
     text: "h-4 w-3/4",

@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useState, useMemo, ReactNode } from "react";
+import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
 import { useResource } from "@/lib/hooks";
 import { listProjects, type Project } from "@/lib/api";
 import type { EvalRun, Trace } from "@/types";
@@ -24,7 +24,7 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [refresh, setRefresh] = useState(0);
-  const bumpRefresh = useCallback(() => setRefresh((r) => r + 1), []);
+  const bumpRefresh = () => setRefresh((r) => r + 1);
 
   const { data: projects, loading: projectsLoading } = useResource<Project[]>(
     (signal) => listProjects(signal),

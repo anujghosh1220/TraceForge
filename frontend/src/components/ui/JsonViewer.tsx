@@ -1,11 +1,9 @@
-import * as React from "react";
-
 function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] || c));
 }
 
-function styleFor(type: string, value: string): string {
-  switch (type) {
+function styleFor(_type: string, _value: string): string {
+  switch (_type) {
     case "string": return "color: #3b82f6;";
     case "number": case "boolean": return "color: #8b5cf6;";
     case "null": case "undefined": return "color: #64748b; font-style: italic;";
@@ -24,7 +22,7 @@ function renderValue(value: unknown, depth: number): string {
     return `<div>[</div>${items}<div style="padding-left: ${(depth - 1) * 18}px">]</div>`;
   }
   if (typeof value === "object") {
-    const entries = Object.entries(value);
+    const entries = Object.entries(value as Record<string, unknown>);
     if (entries.length === 0) return "{}";
     const items = entries.map(([k, v]) => {
       const rendered = renderValue(v, depth + 1);

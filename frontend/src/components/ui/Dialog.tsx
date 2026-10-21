@@ -1,6 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/cn";
 import { X } from "lucide-react";
+import { Button } from "./Button";
 
 interface DialogProps {
   open: boolean;
@@ -8,6 +8,7 @@ interface DialogProps {
   title?: string;
   description?: string;
   closeLabel?: string;
+  children?: React.ReactNode;
 }
 
 export function Dialog({ open, onClose, title, description, closeLabel = "Close", children }: DialogProps) {
@@ -54,6 +55,7 @@ interface DrawerProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  children?: React.ReactNode;
 }
 
 export function Drawer({ open, onClose, title, children }: DrawerProps) {

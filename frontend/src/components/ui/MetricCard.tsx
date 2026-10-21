@@ -1,4 +1,3 @@
-import * as React from "react";
 import { cn } from "@/lib/cn";
 import { formatPercent } from "@/lib/utils";
 
@@ -30,6 +29,8 @@ export function MetricCard({ title, value, subtitle, change }: MetricCardProps) 
     </Card>
   );
 }
+
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./Card";
 
 export function PassRateCard({ rate, label = "Latest pass rate" }: { rate: number | null; label?: string }) {
   return (

@@ -60,11 +60,20 @@ function CreateDialog({ open, onClose, onSuccess }: { open: boolean; onClose: ()
   );
 }
 
-function EditDialog({ open, row, onClose, onSuccess }: { open: boolean; row: Project; onClose: () => void; onSuccess: () => void }) {
-  const [name, setName] = React.useState(row.name);
-  const [description, setDescription] = React.useState(row.description || "");
+function EditDialog({ open, row, onClose, onSuccess }: { open: boolean; row: Project | null; onClose: () => void; onSuccess: () => void }) {
+  const [name, setName] = React.useState(row?.name ?? "");
+  const [description, setDescription] = React.useState(row?.description || "");
   const [formError, setFormError] = React.useState("");
   const update = useMutation();
+
+  React.useEffect(() => {
+    if (row) {
+      setName(row.name);
+      setDescription(row.description || "");
+    }
+  }, [row]);
+
+  if (!open || !row) return null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +107,9 @@ function EditDialog({ open, row, onClose, onSuccess }: { open: boolean; row: Pro
   );
 }
 
-function DeleteDialog({ open, row, onClose, onSuccess }: { open: boolean; row: Project; onClose: () => void; onSuccess: (id: string) => void }) {
+function DeleteDialog({ open, row, onClose, onSuccess }: { open: boolean; row: Project | null; onClose: () => void; onSuccess: (id: string) => void }) {
   const remove = useMutation();
+  if (!open || !row) return null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,8 +1,7 @@
-import * as React from "react";
 import { cn } from "@/lib/cn";
 import {
   LayoutDashboard,
-  Project,
+  FolderKanban,
   FileText,
   Play,
   Activity,
@@ -10,12 +9,13 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
+import { Button } from "./Button";
 
 type NavItem = { key: string; label: string; icon: React.ElementType };
 
 const NAV: NavItem[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
-  { key: "projects", label: "Projects", icon: Project },
+  { key: "projects", label: "Projects", icon: FolderKanban },
   { key: "datasets", label: "Datasets", icon: FileText },
   { key: "runs", label: "Evaluation Runs", icon: Play },
   { key: "traces", label: "Traces", icon: Activity },
@@ -87,7 +87,9 @@ export function Sidebar({ collapsed, onToggle, activeTab, onTabChange, mobileOpe
               <div className="rounded-md bg-accent-violet p-1.5"><LayoutDashboard size={20} className="text-slate-950" /></div>
               <span className="font-bold text-ink">Trace<span className="text-accent-violet">Forge</span></span>
             </div>
-            <ButtonSmall onClick={onMobileToggle}><X size={16} /></ButtonSmall>
+            <Button variant="ghost" size="sm" onClick={onMobileToggle} className="p-1.5">
+              <X size={16} />
+            </Button>
           </div>
           <nav className="flex-1 px-4 overflow-y-auto">
             {NAV.map((item) => {
@@ -111,13 +113,5 @@ export function Sidebar({ collapsed, onToggle, activeTab, onTabChange, mobileOpe
         </div>
       </div>
     </>
-  );
-}
-
-function ButtonSmall({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} className="p-1.5 rounded-md text-ink-subtle hover:bg-surface-hover hover:text-ink">
-      {children}
-    </button>
   );
 }

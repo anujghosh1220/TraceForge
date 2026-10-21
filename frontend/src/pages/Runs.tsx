@@ -12,6 +12,11 @@ import { type EvalRun } from "@/types";
 export function RunsPage() {
   const { selectedProject, bumpRefresh, setSelectedRun, selectedRun } = useApp();
 
+  const { data: runs, loading } = useResource<EvalRun[]>(
+    (signal) => (selectedProject ? listRuns(selectedProject, signal) : Promise.resolve([])),
+    [selectedProject, bumpRefresh],
+  );
+
   if (!selectedProject) {
     return (
       <div className="rounded-lg border border-border-base bg-surface-base p-8 text-center flex flex-col items-center justify-center">
@@ -20,11 +25,6 @@ export function RunsPage() {
       </div>
     );
   }
-
-  const { data: runs, loading } = useResource<EvalRun[]>(
-    (signal) => listRuns(selectedProject, signal),
-    [selectedProject, bumpRefresh],
-  );
 
   const columns = [
     { key: "id", header: "Run", cell: (row: EvalRun) => <span className="font-mono text-xs text-ink-dim truncate block" title={row.id}>{shortId(row.id)}</span> },
@@ -74,7 +74,7 @@ interface RunDetailProps {
 }
 
 function RunDetail({ run, onClose, bumpRefresh }: RunDetailProps) {
-  const { data: results, loading } = useResource(
+  const { data: results } = useResource(
     (signal) => listResults(run.id, signal),
     [run.id, bumpRefresh],
   );
@@ -82,7 +82,6 @@ function RunDetail({ run, onClose, bumpRefresh }: RunDetailProps) {
   const metrics = run.metrics || {};
   const total = metrics.total ?? results?.length ?? 0;
   const passed = metrics.passed ?? results?.filter((r) => r.passed).length ?? 0;
-  const failed = metrics.failed ?? total - passed;
   const passRate = total ? passed / total : 0;
   const st = statusColor(run.status);
 

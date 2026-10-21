@@ -18,9 +18,8 @@ import { Dialog } from "@/components/ui/Dialog";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { formatRelativeTime, shortId, statusColor } from "@/lib/utils";
+import { formatRelativeTime, shortId, jsonValue } from "@/lib/utils";
 import { type Dataset, type TestCase } from "@/types";
 
 const PROFILES: string[] = ["correct", "incorrect", "invalid_json", "empty", "error"];
@@ -74,17 +73,8 @@ export function DatasetsPage() {
   const [openDataset, setOpenDataset] = React.useState<string | null>(null);
   const [runNotice, setRunNotice] = React.useState<string | null>(null);
 
-  if (!selectedProject) {
-    return (
-      <div className="rounded-lg border border-border-base bg-surface-base p-8 text-center flex flex-col items-center justify-center">
-        <h2 className="text-sm font-semibold text-ink">Select a project</h2>
-        <p className="text-sm text-ink-muted mt-1">Choose a project from the top bar to manage its datasets.</p>
-      </div>
-    );
-  }
-
   const { data: datasets, loading: datasetsLoading } = useResource<Dataset[]>(
-    (signal) => listDatasets(selectedProject, signal),
+    (signal) => (selectedProject ? listDatasets(selectedProject, signal) : Promise.resolve([])),
     [selectedProject, refresh],
   );
 
@@ -94,7 +84,7 @@ export function DatasetsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const description = (form.elements.namedItem("description") as HTMLInputElement).value;
     const result = await create.run(() => createDataset(selectedProject!, { name, description: description || null }));
@@ -104,7 +94,7 @@ export function DatasetsPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editRow) return;
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const description = (form.elements.namedItem("description") as HTMLInputElement).value;
     const result = await update.run(() => updateDataset(editRow.id, { name, description: description || null }));
@@ -139,7 +129,7 @@ export function DatasetsPage() {
   const addCase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!openDataset) return;
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement;
     let input: unknown, expected: unknown;
     try {
       input = JSON.parse((form.elements.namedItem("input") as HTMLTextAreaElement).value || "{}");
@@ -152,7 +142,7 @@ export function DatasetsPage() {
   const handleCaseUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editCase) return;
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement;
     let input: unknown, expected: unknown;
     try {
       input = JSON.parse((form.elements.namedItem("input") as HTMLTextAreaElement).value);
@@ -172,15 +162,24 @@ export function DatasetsPage() {
   const startRun = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!openDataset) return;
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement;
     const profile = (form.elements.namedItem("profile") as HTMLSelectElement).value;
-    const result = await runCreate.run(() => createRun(selectedProject, { dataset_id: openDataset, profile }));
+    const result = await runCreate.run(() => createRun(selectedProject!, { dataset_id: openDataset, profile }));
     if (result) {
       bumpRefresh();
-      setRunNotice(`Run started: ${shortId(result.id)}`);
+      setRunNotice(`Run started: ${shortId((result as { id: string }).id)}`);
       setTimeout(() => setRunNotice(null), 4000);
     }
   };
+
+  if (!selectedProject) {
+    return (
+      <div className="rounded-lg border border-border-base bg-surface-base p-8 text-center flex flex-col items-center justify-center">
+        <h2 className="text-sm font-semibold text-ink">Select a project</h2>
+        <p className="text-sm text-ink-muted mt-1">Choose a project from the top bar to manage its datasets.</p>
+      </div>
+    );
+  }
 
   if (datasetsLoading) {
     return <div className="h-64 flex items-center justify-center"><span className="text-ink-muted">Loading datasets…</span></div>;
@@ -197,7 +196,7 @@ export function DatasetsPage() {
       </div>
       <DataTable
         columns={datasetColumns}
-        data={datasets}
+        data={datasets || []}
         loading={datasetsLoading}
         emptyMessage="No datasets yet. Create your first dataset."
         rowActions={[
@@ -235,7 +234,7 @@ export function DatasetsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setOpenDataset(null)} variant="ghost">Close</Button>
-              <form onSubmit={startRun} className="flex items-center gap-2" disabled={runCreate.loading}>
+              <form onSubmit={startRun} className="flex items-center gap-2">
                 <Select name="profile" defaultValue="correct" className="text-xs">
                   {PROFILES.map((p) => <option key={p} value={p}>{p}</option>)}
                 </Select>
@@ -290,3 +289,6 @@ export function DatasetsPage() {
     </div>
   );
 }
+
+
+
