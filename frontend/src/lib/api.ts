@@ -117,7 +117,7 @@ function isApiError(e: unknown): e is ApiError {
   return e instanceof ApiError;
 }
 
-const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:8000");
 
 async function request(path: string, opts: RequestInit = {}): Promise<unknown> {
   const res = await fetch(`${API}${path}`, {
